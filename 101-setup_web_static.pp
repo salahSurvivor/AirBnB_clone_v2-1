@@ -1,79 +1,28 @@
-# Pupper manifet to redoo ejer 0
-
-exec { 'update':
-  command => '/usr/bin/apt-get update',
+# puppet manifest preparing a server for static content deployment
+exec { 'sudo apt-get-update':
+  command => '/usr/bin/env apt-get -y update',
 }
-
--> package { 'nginx':
-  ensure  => installed,
+-> exec {'b':
+  command => '/usr/bin/env apt-get -y install nginx',
 }
-
--> file { ['/data/', '/data/web_static/', '/data/web_static/releases/', '/data/web_static/releases/test', '/data/web_static/shared' ]:
-  ensure => 'directory',
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
+-> exec {'c':
+  command => '/usr/bin/env mkdir -p /data/web_static/releases/test/',
 }
-
--> file { '/data/web_static/releases/test/index.html':
-  content => 'test page',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
+-> exec {'d':
+  command => '/usr/bin/env mkdir -p /data/web_static/shared/',
 }
-
--> file { '/data/web_static/current':
-  ensure => 'link',
-  target => '/data/web_static/releases/test/',
-  force  => yes,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
+-> exec {'e':
+  command => '/usr/bin/env echo "Puppet x Holberton School" > /data/web_static/releases/test/index.html',
 }
-
--> exec { 'sed':
-  command => '/usr/bin/env sed -i "/listen 80 default_server/a location \
-/hbnb_static/ { alias /data/web_static/current/;}" \
-/etc/nginx/sites-available/default',
+-> exec {'f':
+  command => '/usr/bin/env ln -sf /data/web_static/releases/test /data/web_static/current',
 }
-
--> service { 'nginx':
-  ensure  => running,
-  require => Package['nginx'],
-}# Pupper manifet to redoo ejer 0
-
-exec { 'update':
-  command => '/usr/bin/apt-get update',
+-> exec {'h':
+  command => '/usr/bin/env sed -i "/listen 80 default_server/a location /hbnb_static/ { alias /data/web_static/current/;}" /etc/nginx/sites-available/default',
 }
-
--> package { 'nginx':
-  ensure  => installed,
+-> exec {'i':
+  command => '/usr/bin/env service nginx restart',
 }
-
--> file { ['/data/', '/data/web_static/', '/data/web_static/releases/', '/data/web_static/releases/test', '/data/web_static/shared' ]:
-  ensure => 'directory',
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-}
-
--> file { '/data/web_static/releases/test/index.html':
-  content => 'test page',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
-}
-
--> file { '/data/web_static/current':
-  ensure => 'link',
-  target => '/data/web_static/releases/test/',
-  force  => yes,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-}
-
--> exec { 'sed':
-  command => '/usr/bin/env sed -i "/listen 80 default_server/a location \
-/hbnb_static/ { alias /data/web_static/current/;}" \
-/etc/nginx/sites-available/default',
-}
-
--> service { 'nginx':
-  ensure  => running,
-  require => Package['nginx'],
+-> exec {'g':
+  command => '/usr/bin/env chown -R ubuntu:ubuntu /data',
 }
